@@ -1,4 +1,4 @@
-"# k8s-vagrant" 
+# k8s-vagrant
 when ready
 
 mkdir ~/.kube
