@@ -49,6 +49,7 @@ cat >>/etc/systemd/system/containerd.service.d/http-proxy.conf<<EOF
 [Service]
 Environment="HTTP_PROXY=http://172.16.16.1:15732"
 Environment="HTTPS_PROXY=http://172.16.16.1:15732"
+Environment="NO_PROXY=localhost,10.96.0.0/16,127.0.0.1，192.168.0.0/16"
 EOF
 systemctl daemon-reload
 systemctl restart containerd
