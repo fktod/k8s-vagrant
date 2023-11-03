@@ -1,4 +1,4 @@
-#!/bin/bash 
+#!/bin/bash
 
 ## !IMPORTANT ##
 #
@@ -29,10 +29,7 @@ net.ipv4.ip_forward                 = 1
 EOF
 sysctl --system >/dev/null 2>&1
 
-echo "[TASK 5] Set proxy"
-export http_proxy=http://172.16.16.1:15732 https_proxy=http://172.16.16.1:15732
-
-echo "[TASK 6] Install containerd runtime"
+echo "[TASK 5] Install containerd runtime"
 apt update -qq >/dev/null 2>&1
 apt install -qq -y ca-certificates curl gnupg lsb-release >/dev/null 2>&1
 mkdir -p /etc/apt/keyrings
@@ -49,34 +46,32 @@ cat >>/etc/systemd/system/containerd.service.d/http-proxy.conf<<EOF
 [Service]
 Environment="HTTP_PROXY=http://172.16.16.1:15732"
 Environment="HTTPS_PROXY=http://172.16.16.1:15732"
-Environment="NO_PROXY=localhost,10.96.0.0/16,127.0.0.1,192.168.0.0/16"
+Environment="NO_PROXY=localhost,127.0.0.1,192.168.0.0/16,172.16.0.0/16,10.96.0.0/16"
 EOF
 systemctl daemon-reload
 systemctl restart containerd
 systemctl enable containerd >/dev/null 2>&1
 
-echo "[TASK 7] Add apt repo for kubernetes"
+echo "[TASK 6] Add apt repo for kubernetes"
 curl -s https://packages.cloud.google.com/apt/doc/apt-key.gpg | apt-key add - >/dev/null 2>&1
-apt-add-repository "deb http://apt.kubernetes.io/ kubernetes-xenial main" >/dev/null 2>&1
+# apt-add-repository "deb http://apt.kubernetes.io/ kubernetes-xenial main" >/dev/null 2>&1
+apt-add-repository "deb http://mirrors.ustc.edu.cn/kubernetes/apt kubernetes-xenial main" >/dev/null 2>&1
 
-echo "[TASK 8] Install Kubernetes components (kubeadm, kubelet and kubectl)"
+echo "[TASK 7] Install Kubernetes components (kubeadm, kubelet and kubectl)"
 apt install -qq -y kubeadm=1.26.0-00 kubelet=1.26.0-00 kubectl=1.26.0-00 >/dev/null 2>&1
 
-echo "[TASK 9] Enable ssh password authentication"
+echo "[TASK 8] Enable ssh password authentication"
 sed -i 's/^PasswordAuthentication .*/PasswordAuthentication yes/' /etc/ssh/sshd_config
 echo 'PermitRootLogin yes' >> /etc/ssh/sshd_config
 systemctl reload sshd
 
-echo "[TASK 10] Set root password"
+echo "[TASK 9] Set root password"
 echo -e "kubeadmin\nkubeadmin" | passwd root >/dev/null 2>&1
 echo "export TERM=xterm" >> /etc/bash.bashrc
 
-echo "[TASK 11] Update /etc/hosts file"
+echo "[TASK 10] Update /etc/hosts file"
 cat >>/etc/hosts<<EOF
 172.16.16.100   kmaster.example.com     kmaster
 172.16.16.101   kworker1.example.com    kworker1
 172.16.16.102   kworker2.example.com    kworker2
 EOF
-
-
-
