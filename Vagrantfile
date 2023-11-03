@@ -6,13 +6,19 @@ ENV['VAGRANT_NO_PARALLEL'] = 'yes'
 VAGRANT_BOX         = "generic/ubuntu2204"
 VAGRANT_BOX_VERSION = "4.2.10"
 CPUS_MASTER_NODE    = 2
-CPUS_WORKER_NODE    = 2
+CPUS_WORKER_NODE    = 1
 MEMORY_MASTER_NODE  = 2048
-MEMORY_WORKER_NODE  = 2048
+MEMORY_WORKER_NODE  = 1024
 WORKER_NODES_COUNT  = 2
 
 
 Vagrant.configure(2) do |config|
+
+  if Vagrant.has_plugin?("vagrant-proxyconf")
+    config.proxy.http     = "http://172.16.16.1:15732/"
+    config.proxy.https    = "http://172.16.16.1:15732/"
+    config.proxy.no_proxy = "localhost,127.0.0.1,192.168.0.0/16,172.16.0.0/16,10.96.0.0/16"
+  end
 
   config.vm.provision "shell", path: "bootstrap.sh"
 
@@ -45,32 +51,32 @@ Vagrant.configure(2) do |config|
 
   # Kubernetes Worker Nodes
   (1..WORKER_NODES_COUNT).each do |i|
-
+  
     config.vm.define "kworker#{i}" do |node|
-
+  
       node.vm.box               = VAGRANT_BOX
       node.vm.box_check_update  = false
       node.vm.box_version       = VAGRANT_BOX_VERSION
       node.vm.hostname          = "kworker#{i}.example.com"
-
+  
       node.vm.network "private_network", ip: "172.16.16.10#{i}"
-
+  
       node.vm.provider :virtualbox do |v|
         v.name    = "kworker#{i}"
         v.memory  = MEMORY_WORKER_NODE
         v.cpus    = CPUS_WORKER_NODE
       end
-
+  
       node.vm.provider :libvirt do |v|
         v.memory  = MEMORY_WORKER_NODE
         v.nested  = true
         v.cpus    = CPUS_WORKER_NODE
       end
-
+  
       node.vm.provision "shell", path: "bootstrap_kworker.sh"
-
+  
     end
-
+  
   end
 
 end
