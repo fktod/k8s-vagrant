@@ -29,6 +29,10 @@ net.ipv4.ip_forward                 = 1
 EOF
 sysctl --system >/dev/null 2>&1
 
+export http_proxy=http://172.16.16.1:15732/
+export https_proxy=http://172.16.16.1:15732/
+export no_proxy="localhost,127.0.0.1,192.168.0.0/16,172.16.0.0/16,10.96.0.0/16"
+
 echo "[TASK 5] Install containerd runtime"
 apt update -qq >/dev/null 2>&1
 apt install -qq -y ca-certificates curl gnupg lsb-release >/dev/null 2>&1
