@@ -14,11 +14,11 @@ WORKER_NODES_COUNT  = 2
 
 Vagrant.configure(2) do |config|
 
-  if Vagrant.has_plugin?("vagrant-proxyconf")
-    config.proxy.http     = "http://172.16.16.1:15732/"
-    config.proxy.https    = "http://172.16.16.1:15732/"
-    config.proxy.no_proxy = "localhost,127.0.0.1,192.168.0.0/16,172.16.0.0/16,10.96.0.0/16"
-  end
+  # if Vagrant.has_plugin?("vagrant-proxyconf")
+  #   config.proxy.http     = "http://172.16.16.1:15732/"
+  #   config.proxy.https    = "http://172.16.16.1:15732/"
+  #   config.proxy.no_proxy = "localhost,127.0.0.1,192.168.0.0/16,172.16.0.0/16,10.96.0.0/16"
+  # end
 
   config.vm.provision "shell", path: "bootstrap.sh"
 
